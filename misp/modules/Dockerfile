@@ -42,10 +42,12 @@ EOF
     RUN rm -rf /srv/misp-modules
 
     RUN <<-EOF
-        git clone --depth 1 https://github.com/stricaud/faup.git /srv/faup
-        cd /srv/faup
-        if [ ! -z ${LIBFAUP_COMMIT} ]; then
+        if [ -n "${LIBFAUP_COMMIT}" ]; then
+            git clone https://github.com/stricaud/faup.git /srv/faup
+            cd /srv/faup
             git checkout ${LIBFAUP_COMMIT}
+        else
+            git clone --depth 1 https://github.com/stricaud/faup.git /srv/faup
         fi
 EOF
 
