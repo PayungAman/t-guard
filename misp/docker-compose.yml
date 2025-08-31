@@ -42,15 +42,15 @@ services:
       start_period: 30s
 
   misp-core:
-    image: ghcr.io/misp/misp-docker/misp-core:${CORE_TAG}
+    image: ghcr.io/misp/misp-docker/misp-core:${CORE_TAG:-v2.4.197}
     cap_add:
       - CAP_AUDIT_WRITE
     build:
       context: core/.
       args:
-          - CORE_TAG=${CORE_TAG:v2.4.197}
+          - CORE_TAG=${CORE_TAG:-v2.4.197}
           - CORE_COMMIT=${CORE_COMMIT}
-          - PHP_VER=${PHP_VER:20220829}
+          - PHP_VER=${PHP_VER:-20220829}
           - PYPI_REDIS_VERSION=${PYPI_REDIS_VERSION}
           - PYPI_LIEF_VERSION=${PYPI_LIEF_VERSION}
           - PYPI_PYDEEP2_VERSION=${PYPI_PYDEEP2_VERSION}
@@ -128,13 +128,13 @@ services:
       - "PHP_MAX_INPUT_TIME=${PHP_MAX_INPUT_TIME:-300}"
   
   misp-modules:
-    image: ghcr.io/misp/misp-docker/misp-modules:${MODULES_TAG}
+    image: ghcr.io/misp/misp-docker/misp-modules:${MODULES_TAG:-v2.4.197}
     build:
       context: modules/.
       args:
-        - MODULES_TAG=${MODULES_TAG:v2.4.197}
+        - MODULES_TAG=${MODULES_TAG:-v2.4.197}
         - MODULES_COMMIT=${MODULES_COMMIT}
-        - LIBFAUP_COMMIT=${LIBFAUP_COMMIT:3a26d0a}
+        - LIBFAUP_COMMIT=${LIBFAUP_COMMIT:-3a26d0a}
     environment:
       - "REDIS_BACKEND=${REDIS_HOST:-redis}"
       - "REDIS_PORT=${REDIS_PORT:-6379}"
