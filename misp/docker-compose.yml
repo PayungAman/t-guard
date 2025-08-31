@@ -73,6 +73,7 @@ services:
       retries: 3
       start_period: 30s
       start_interval: 30s
+    entrypoint: ["bash", "/entrypoint.sh"]
     expose:
       - "80"
     volumes:

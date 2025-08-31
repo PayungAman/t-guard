@@ -267,7 +267,7 @@ EOF
     # Normalize line endings and ensure entrypoints are executable
     RUN sed -i 's/\r$//' /entrypoint.sh /entrypoint_nginx.sh /entrypoint_fpm.sh /entrypoint_cron.sh && \
         chmod +x /entrypoint.sh /entrypoint_nginx.sh /entrypoint_fpm.sh /entrypoint_cron.sh
-    ENTRYPOINT [ "/entrypoint.sh" ]
+    ENTRYPOINT [ "bash", "/entrypoint.sh" ]
 
     # Change Workdirectory
     WORKDIR /var/www/MISP
