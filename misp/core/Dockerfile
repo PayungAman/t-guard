@@ -11,7 +11,8 @@ FROM "${DOCKER_HUB_PROXY}python:3.12-slim-bookworm" AS php-base
     RUN apt-get update; apt-get install -y --no-install-recommends \
         lsb-release \
         ca-certificates \
-        curl
+        curl \
+        bash
     RUN curl -sSLo /tmp/debsuryorg-archive-keyring.deb https://packages.sury.org/debsuryorg-archive-keyring.deb
     RUN dpkg -i /tmp/debsuryorg-archive-keyring.deb
     RUN echo "deb [signed-by=/usr/share/keyrings/deb.sury.org-php.gpg] https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list
@@ -263,6 +264,9 @@ EOF
 
     # Copy all our image specific files to appropriate locations
     COPY files/ /
+    # Normalize line endings and ensure entrypoints are executable
+    RUN sed -i 's/\r$//' /entrypoint.sh /entrypoint_nginx.sh /entrypoint_fpm.sh /entrypoint_cron.sh && \
+        chmod +x /entrypoint.sh /entrypoint_nginx.sh /entrypoint_fpm.sh /entrypoint_cron.sh
     ENTRYPOINT [ "/entrypoint.sh" ]
 
     # Change Workdirectory
