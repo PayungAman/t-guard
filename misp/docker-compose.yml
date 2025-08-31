@@ -48,9 +48,9 @@ services:
     build:
       context: core/.
       args:
-          - CORE_TAG=${CORE_TAG:?Missing .env file, see README.md for instructions}
+          - CORE_TAG=${CORE_TAG:v2.4.197}
           - CORE_COMMIT=${CORE_COMMIT}
-          - PHP_VER=${PHP_VER:?Missing .env file, see README.md for instructions}
+          - PHP_VER=${PHP_VER:20220829}
           - PYPI_REDIS_VERSION=${PYPI_REDIS_VERSION}
           - PYPI_LIEF_VERSION=${PYPI_LIEF_VERSION}
           - PYPI_PYDEEP2_VERSION=${PYPI_PYDEEP2_VERSION}
@@ -67,15 +67,15 @@ services:
       db:
         condition: service_healthy
     healthcheck:
-      test: curl -ks ${BASE_URL:-https://localhost}/users/heartbeat > /dev/null || exit 1
+      test: curl -ks http://localhost/users/heartbeat > /dev/null || exit 1
       interval: 2s
       timeout: 1s
       retries: 3
       start_period: 30s
       start_interval: 30s
-    ports:
-      - "80:80"
-      - "1443:443"
+    ports: []
+    expose:
+      - "80"
     volumes:
       - "./configs/:/var/www/MISP/app/Config/"
       - "./logs/:/var/www/MISP/app/tmp/logs/"
@@ -88,10 +88,7 @@ services:
       # - "./rootca.pem:/usr/local/share/ca-certificates/rootca.crt"
     environment:
       - "BASE_URL=${BASE_URL}"
-      - "CRON_USER_ID=${CRON_USER_ID}"
-      - "DISABLE_IPV6=${DISABLE_IPV6}"
       - "DISABLE_SSL_REDIRECT=${DISABLE_SSL_REDIRECT}"
-      - "ENABLE_DB_SETTINGS=${ENABLE_DB_SETTINGS}"
       - "ENCRYPTION_KEY=${ENCRYPTION_KEY}"
       # standard settings
       - "ADMIN_EMAIL=${ADMIN_EMAIL}"
@@ -107,54 +104,6 @@ services:
       - "OIDC_ROLES_PROPERTY=${OIDC_ROLES_PROPERTY}"
       - "OIDC_ROLES_MAPPING=${OIDC_ROLES_MAPPING}"
       - "OIDC_DEFAULT_ORG=${OIDC_DEFAULT_ORG}"
-      # LDAP authentication settings
-      - "LDAP_ENABLE=${LDAP_ENABLE}"
-      - "LDAP_APACHE_ENV=${LDAP_APACHE_ENV}"
-      - "LDAP_SERVER=${LDAP_SERVER}"
-      - "LDAP_STARTTLS=${LDAP_STARTTLS}"
-      - "LDAP_READER_USER=${LDAP_READER_USER}"
-      - "LDAP_READER_PASSWORD=${LDAP_READER_PASSWORD}"
-      - "LDAP_DN=${LDAP_DN}"
-      - "LDAP_SEARCH_FILTER=${LDAP_SEARCH_FILTER}"
-      - "LDAP_SEARCH_ATTRIBUTE=${LDAP_SEARCH_ATTRIBUTE}"
-      - "LDAP_FILTER=${LDAP_FILTER}"
-      - "LDAP_DEFAULT_ROLE_ID=${LDAP_DEFAULT_ROLE_ID}"
-      - "LDAP_DEFAULT_ORG=${LDAP_DEFAULT_ORG}"
-      - "LDAP_EMAIL_FIELD=${LDAP_EMAIL_FIELD}"
-      - "LDAP_OPT_PROTOCOL_VERSION=${LDAP_OPT_PROTOCOL_VERSION}"
-      - "LDAP_OPT_NETWORK_TIMEOUT=${LDAP_OPT_NETWORK_TIMEOUT}"
-      - "LDAP_OPT_REFERRALS=${LDAP_OPT_REFERRALS}"
-      # AAD authentication settings
-      - "AAD_ENABLE=${AAD_ENABLE}"
-      - "AAD_CLIENT_ID=${AAD_CLIENT_ID}"
-      - "AAD_TENANT_ID=${AAD_TENANT_ID}"
-      - "AAD_CLIENT_SECRET=${AAD_CLIENT_SECRET}"
-      - "AAD_REDIRECT_URI=${AAD_REDIRECT_URI}"
-      - "AAD_PROVIDER=${AAD_PROVIDER}"
-      - "AAD_PROVIDER_USER=${AAD_PROVIDER_USER}"
-      - "AAD_MISP_USER=${AAD_MISP_USER}"
-      - "AAD_MISP_ORGADMIN=${AAD_MISP_ORGADMIN}"
-      - "AAD_MISP_SITEADMIN=${AAD_MISP_SITEADMIN}"
-      - "AAD_CHECK_GROUPS=${AAD_CHECK_GROUPS}"
-      # Proxy settings
-      - "PROXY_ENABLE=${PROXY_ENABLE}"
-      - "PROXY_HOST=${PROXY_HOST}"
-      - "PROXY_PORT=${PROXY_PORT}"
-      - "PROXY_METHOD=${PROXY_METHOD}"
-      - "PROXY_USER=${PROXY_USER}"
-      - "PROXY_PASSWORD=${PROXY_PASSWORD}"
-      # sync server settings (see https://www.misp-project.org/openapi/#tag/Servers for more options)
-      - "SYNCSERVERS=${SYNCSERVERS}"
-      - |
-        SYNCSERVERS_1_DATA=
-        {
-          "remote_org_uuid": "${SYNCSERVERS_1_UUID}",
-          "name": "${SYNCSERVERS_1_NAME}",
-          "authkey": "${SYNCSERVERS_1_KEY}",
-          "url": "${SYNCSERVERS_1_URL}",
-          "pull_rules": "${SYNCSERVERS_1_PULL_RULES}",
-          "pull": true
-        }
       # mysql settings
       - "MYSQL_HOST=${MYSQL_HOST:-db}"
       - "MYSQL_PORT=${MYSQL_PORT:-3306}"
@@ -167,8 +116,6 @@ services:
       - "REDIS_PASSWORD=${REDIS_PASSWORD:-redispassword}"
       # Debug setting 
       - "DEBUG=${DEBUG}"
-      # SMTP setting
-      - "SMTP_FQDN=${SMTP_FQDN}"
       # NGINX settings
       - "FASTCGI_READ_TIMEOUT=${FASTCGI_READ_TIMEOUT:-300s}"
       - "FASTCGI_SEND_TIMEOUT=${FASTCGI_SEND_TIMEOUT:-300s}"
@@ -178,16 +125,16 @@ services:
       - "PHP_MAX_EXECUTION_TIME=${PHP_MAX_EXECUTION_TIME:-300}"
       - "PHP_UPLOAD_MAX_FILESIZE=${PHP_UPLOAD_MAX_FILESIZE:-50M}"
       - "PHP_POST_MAX_SIZE=${PHP_POST_MAX_SIZE:-50M}"
-      - "PHP_MAX_INPUT_TIME:${PHP_MAX_INPUT_TIME:-300}"
+      - "PHP_MAX_INPUT_TIME=${PHP_MAX_INPUT_TIME:-300}"
   
   misp-modules:
     image: ghcr.io/misp/misp-docker/misp-modules:${MODULES_TAG}
     build:
       context: modules/.
       args:
-        - MODULES_TAG=${MODULES_TAG:?Missing .env file, see README.md for instructions}
+        - MODULES_TAG=${MODULES_TAG:v2.4.197}
         - MODULES_COMMIT=${MODULES_COMMIT}
-        - LIBFAUP_COMMIT=${LIBFAUP_COMMIT:?Missing .env file, see README.md for instructions}
+        - LIBFAUP_COMMIT=${LIBFAUP_COMMIT:3a26d0a}
     environment:
       - "REDIS_BACKEND=${REDIS_HOST:-redis}"
       - "REDIS_PORT=${REDIS_PORT:-6379}"
